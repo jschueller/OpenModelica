@@ -1325,7 +1325,7 @@ fmi2Status fmi2SetContinuousStates(fmi2Component c, const fmi2Real x[], size_t n
     return fmi2Error;
   if (invalidNumber(comp, "fmi2SetContinuousStates", "nx", nx, NUMBER_OF_STATES))
     return fmi2Error;
-  if (nullPointer(comp, "fmi2SetContinuousStates", "x[]", x))
+  if ((nx > 0) && nullPointer(comp, "fmi2SetContinuousStates", "x[]", x))
     return fmi2Error;
 #if NUMBER_OF_STATES>0
   for (i = 0; i < nx; i++) {
@@ -1349,7 +1349,7 @@ fmi2Status fmi2GetDerivatives(fmi2Component c, fmi2Real derivatives[], size_t nx
     return fmi2Error;
   if (invalidNumber(comp, "fmi2GetDerivatives", "nx", nx, NUMBER_OF_STATES))
     return fmi2Error;
-  if (nullPointer(comp, "fmi2GetDerivatives", "derivatives[]", derivatives))
+  if ((nx > 0) && nullPointer(comp, "fmi2GetDerivatives", "derivatives[]", derivatives))
     return fmi2Error;
 
   setThreadData(comp);
@@ -1394,7 +1394,7 @@ fmi2Status fmi2GetEventIndicators(fmi2Component c, fmi2Real eventIndicators[], s
   if (invalidState(comp, "fmi2GetEventIndicators", modelInstantiated|modelInitializationMode|modelEventMode|modelContinuousTimeMode|modelTerminated|modelError, ~0))
   /*if (invalidState(comp, "fmi2GetEventIndicators", modelEventMode|modelContinuousTimeMode|modelTerminated|modelError))*/
     return fmi2Error;
-  if (invalidNumber(comp, "fmi2GetEventIndicators", "nx", nx, NUMBER_OF_EVENT_INDICATORS))
+  if ((nx > 0) && invalidNumber(comp, "fmi2GetEventIndicators", "nx", nx, NUMBER_OF_EVENT_INDICATORS))
     return fmi2Error;
 
   setThreadData(comp);
@@ -1434,7 +1434,7 @@ fmi2Status fmi2GetContinuousStates(fmi2Component c, fmi2Real x[], size_t nx)
     return fmi2Error;
   if (invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx, NUMBER_OF_STATES))
     return fmi2Error;
-  if (nullPointer(comp, "fmi2GetContinuousStates", "states[]", x))
+  if ((nx > 0) && nullPointer(comp, "fmi2GetContinuousStates", "states[]", x))
     return fmi2Error;
 #if NUMBER_OF_STATES>0
   for (i = 0; i < nx; i++) {
@@ -1454,9 +1454,8 @@ fmi2Status fmi2GetNominalsOfContinuousStates(fmi2Component c, fmi2Real x_nominal
     return fmi2Error;
   if (invalidNumber(comp, "fmi2GetNominalsOfContinuousStates", "nx", nx, NUMBER_OF_STATES))
     return fmi2Error;
-  if (nullPointer(comp, "fmi2GetNominalsOfContinuousStates", "x_nominal[]", x_nominal))
+  if ((nx > 0) && nullPointer(comp, "fmi2GetNominalsOfContinuousStates", "x_nominal[]", x_nominal))
     return fmi2Error;
-  x_nominal[0] = 1;
   FILTERED_LOG(comp, fmi2OK, LOG_FMI2_CALL, "fmi2GetNominalsOfContinuousStates: x_nominal[0..%d] = 1.0", nx-1)
   for (i = 0; i < nx; i++)
     x_nominal[i] = 1;
