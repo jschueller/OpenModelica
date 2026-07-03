@@ -174,7 +174,7 @@ void SimController::Start(SimSettings simsettings, string modelKey)
                 LoadSystem(_modelLib, _modelKey);
             }
             else {
-                throw ex;
+                throw;
             }
         }
     }
@@ -467,6 +467,7 @@ void SimController::StartReduceDAE(SimSettings simsettings,string modelPath, str
          // for example for Modelica.Electrical.Analog.Examples.CauerLowPassSC, the modelPath only gives Modelica.CauerLowPassSC
         compiler =new ModelicaCompiler(modelKey,fileName,packageName,!loadMSL,loadPackage);
         compiler->reduceTerms(terms,simsettings.start_time,simsettings.end_time);
+        delete compiler;
         //-----------------------------------------------------------------------------------------
 
 
