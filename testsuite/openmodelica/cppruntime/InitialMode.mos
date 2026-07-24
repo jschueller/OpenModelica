@@ -1,0 +1,48 @@
+// name: InitialMode
+// keywords: initial event iteration, #14079 (Events Iteration problem in Cpp Initialization)
+// status: correct
+// teardown_command: rm -f *InitialMode*
+
+setCommandLineOptions("+simCodeTarget=Cpp"); getErrorString();
+
+loadString("
+model InitialMode
+  parameter Integer Mp = 1;
+  type Mode = enumeration(off, starting, running);
+  Mode mode;
+equation
+  when initial() then
+    mode = if Mp > 0 then Mode.starting else Mode.off;
+  elsewhen Mp > 0 and pre(mode) == Mode.off then
+    mode = Mode.starting;
+  elsewhen Mp > 0 and pre(mode) == Mode.starting then
+    mode = Mode.running;
+  elsewhen Mp == 0 and pre(mode) == Mode.running then
+    mode = Mode.off;
+  end when;
+  annotation(experiment(StopTime=1.0));
+end InitialMode;
+"); getErrorString();
+
+simulate(InitialMode, outputFormat="mat"); getErrorString();
+
+val(mode, 0.0);
+val(mode, 0.5);
+val(mode, 1.0);
+
+// Result:
+// true
+// ""
+// true
+// ""
+// record SimulationResult
+//     resultFile = "InitialMode_res.mat",
+//     simulationOptions = "startTime = 0.0, stopTime = 1.0, numberOfIntervals = 500, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'InitialMode', options = '', outputFormat = 'mat', variableFilter = '.*', cflags = '', simflags = ''",
+//     messages = ""
+// end SimulationResult;
+// "Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+// "
+// 3.0
+// 3.0
+// 3.0
+// endResult

@@ -58,24 +58,33 @@ void Initialization::initializeSystem()
 
   _system->initialize();
   _solver->stateSelection();
-  /*deactivated initialization loop*/
-  //bool restart = true;
-  //int iter = 0;
-  //bool cond_restart = true;
-  //while((restart /*|| cond_restart*/) && !(iter++ > 15))
-  //{
-  //  event_system->getConditions(conditions0);
-  //  _system->initEquations();    // vxworksupdate
-  //  restart = event_system->checkForDiscreteEvents();
-  //  event_system->getConditions(conditions1);
-  //  //Deactivated: event_system->saveDiscreteVars();
-  //  event_system->saveAll();
 
-  //  cond_restart = !std::equal (conditions1, conditions1+dim, conditions0);
-  //}
-
+  // Reset boolean variables (including when-condition booleans) to allow edge detection
+  // during event iteration. initEquations() pre-computes them, which prevents cascading
+  // elsewhen clauses from detecting edges during initialization.
+  {
+    int dimBool = continous_system->getDimBoolean();
+    bool* resetBool = new bool[dimBool]();
+    continous_system->setBoolean(resetBool);
+    delete[] resetBool;
+  }
   event_system->saveAll();
+
+  // Event iteration loop for when-clauses during initialization
   _system->setInitial(false);
+  bool restart = true;
+  int iter = 0;
+  while (restart && !(iter++ > 15))
+  {
+    event_system->getConditions(conditions0);
+    continous_system->evaluateAll();
+    restart = event_system->checkForDiscreteEvents();
+    event_system->getConditions(conditions1);
+    event_system->saveAll();
+
+    if (dim > 0)
+      restart = restart || !std::equal(conditions1, conditions1 + dim, conditions0);
+  }
 
   if( _solver->stateSelection())
   {
